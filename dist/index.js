@@ -1,5 +1,5 @@
 /*!
- * axios-miniprogram-adapter 0.3.1 (https://github.com/bigMeow/axios-miniprogram-adapter)
+ * axios-miniprogram-adapter 0.3.2 (https://github.com/bigMeow/axios-miniprogram-adapter)
  * API https://github.com/bigMeow/axios-miniprogram-adapter/blob/master/doc/api.md
  * Copyright 2018-2020 bigMeow. All Rights Reserved
  * Licensed under MIT (https://github.com/bigMeow/axios-miniprogram-adapter/blob/master/LICENSE)
@@ -7,13 +7,19 @@
 
 'use strict';
 
-function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
+var utils = require('axios/lib/utils');
+var settle = require('axios/lib/core/settle');
+var buildURL = require('axios/lib/helpers/buildURL');
+var buildFullPath = require('axios/lib/core/buildFullPath');
+var createError = require('axios/lib/core/createError');
 
-var utils = _interopDefault(require('axios/lib/utils'));
-var settle = _interopDefault(require('axios/lib/core/settle'));
-var buildURL = _interopDefault(require('axios/lib/helpers/buildURL'));
-var buildFullPath = _interopDefault(require('axios/lib/core/buildFullPath'));
-var createError = _interopDefault(require('axios/lib/core/createError'));
+function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
+
+var utils__default = /*#__PURE__*/_interopDefaultLegacy(utils);
+var settle__default = /*#__PURE__*/_interopDefaultLegacy(settle);
+var buildURL__default = /*#__PURE__*/_interopDefaultLegacy(buildURL);
+var buildFullPath__default = /*#__PURE__*/_interopDefaultLegacy(buildFullPath);
+var createError__default = /*#__PURE__*/_interopDefaultLegacy(createError);
 
 var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
 // encoder
@@ -46,6 +52,7 @@ var platFormName = 'wechat';
  * 获取各个平台的请求函数
  */
 function getRequest() {
+    console.log('call getRequest');
     switch (true) {
         case typeof wx === 'object':
             platFormName = 'wechat';
@@ -53,6 +60,10 @@ function getRequest() {
         case typeof swan === 'object':
             platFormName = 'baidu';
             return swan.request.bind(swan);
+        case typeof tt === 'object':
+            console.log('getRequest(): tt');
+            platFormName = 'toutiao';
+            return tt.request.bind(tt);
         case typeof my === 'object':
             /**
              * remark:
@@ -105,34 +116,34 @@ function transformError(error, reject, config) {
         case 'wechat':
             if (error.errMsg.indexOf('request:fail abort') !== -1) {
                 // Handle request cancellation (as opposed to a manual cancellation)
-                reject(createError('Request aborted', config, 'ECONNABORTED', ''));
+                reject(createError__default['default']('Request aborted', config, 'ECONNABORTED', ''));
             }
             else if (error.errMsg.indexOf('timeout') !== -1) {
                 // timeout
-                reject(createError('timeout of ' + config.timeout + 'ms exceeded', config, 'ECONNABORTED', ''));
+                reject(createError__default['default']('timeout of ' + config.timeout + 'ms exceeded', config, 'ECONNABORTED', ''));
             }
             else {
                 // NetWordError
-                reject(createError('Network Error', config, null, ''));
+                reject(createError__default['default']('Network Error', config, null, ''));
             }
             break;
         case 'alipay':
             // https://docs.alipay.com/mini/api/network
             if ([14, 19].includes(error.error)) {
-                reject(createError('Request aborted', config, 'ECONNABORTED', ''));
+                reject(createError__default['default']('Request aborted', config, 'ECONNABORTED', ''));
             }
             else if ([13].includes(error.error)) {
                 // timeout
-                reject(createError('timeout of ' + config.timeout + 'ms exceeded', config, 'ECONNABORTED', ''));
+                reject(createError__default['default']('timeout of ' + config.timeout + 'ms exceeded', config, 'ECONNABORTED', ''));
             }
             else {
                 // NetWordError
-                reject(createError('Network Error', config, null, ''));
+                reject(createError__default['default']('Network Error', config, null, ''));
             }
             break;
         case 'baidu':
             // TODO error.errCode
-            reject(createError('Network Error', config, null, ''));
+            reject(createError__default['default']('Network Error', config, null, ''));
             break;
     }
 }
@@ -168,11 +179,11 @@ function mpAdapter(config) {
         // miniprogram network request config
         var mpRequestOption = {
             method: requestMethod,
-            url: buildURL(buildFullPath(config.baseURL, config.url), config.params, config.paramsSerializer),
+            url: buildURL__default['default'](buildFullPath__default['default'](config.baseURL, config.url), config.params, config.paramsSerializer),
             // Listen for success
             success: function (mpResponse) {
                 var response = transformResponse(mpResponse, config, mpRequestOption);
-                settle(resolve, reject, response);
+                settle__default['default'](resolve, reject, response);
             },
             // Handle request Exception
             fail: function (error) {
@@ -192,7 +203,7 @@ function mpAdapter(config) {
             warn('The "timeout" option is not supported by miniprogram. For more information about usage see "https://developers.weixin.qq.com/miniprogram/dev/framework/config.html#全局配置"');
         }
         // Add headers to the request
-        utils.forEach(requestHeaders, function setRequestHeader(val, key) {
+        utils__default['default'].forEach(requestHeaders, function setRequestHeader(val, key) {
             var _header = key.toLowerCase();
             if ((typeof requestData === 'undefined' && _header === 'content-type') || _header === 'referer') {
                 // Remove Content-Type if data is undefined

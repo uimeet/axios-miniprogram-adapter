@@ -1,12 +1,13 @@
 import createError from 'axios/lib/core/createError'
 import { AxiosResponse, AxiosRequestConfig } from 'axios'
 
-let platFormName: 'wechat' | 'alipay' | 'baidu' = 'wechat'
+let platFormName: 'wechat' | 'alipay' | 'baidu' | 'toutiao' = 'wechat'
 
 /**
  * 获取各个平台的请求函数
  */
 export function getRequest (): (option: WechatMiniprogram.RequestOption) => WechatMiniprogram.RequestTask {
+  console.log('call getRequest');
   switch (true) {
     case typeof wx === 'object':
       platFormName = 'wechat'
@@ -14,6 +15,10 @@ export function getRequest (): (option: WechatMiniprogram.RequestOption) => Wech
     case typeof swan === 'object':
       platFormName = 'baidu'
       return swan.request.bind(swan)
+    case typeof tt === 'object':
+      console.log('getRequest(): tt');
+      platFormName = 'toutiao'
+      return tt.request.bind(tt)
     case typeof my === 'object':
       /**
        * remark:

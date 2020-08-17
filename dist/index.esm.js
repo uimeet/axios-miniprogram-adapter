@@ -1,5 +1,5 @@
 /*!
- * axios-miniprogram-adapter 0.3.1 (https://github.com/bigMeow/axios-miniprogram-adapter)
+ * axios-miniprogram-adapter 0.3.2 (https://github.com/bigMeow/axios-miniprogram-adapter)
  * API https://github.com/bigMeow/axios-miniprogram-adapter/blob/master/doc/api.md
  * Copyright 2018-2020 bigMeow. All Rights Reserved
  * Licensed under MIT (https://github.com/bigMeow/axios-miniprogram-adapter/blob/master/LICENSE)
@@ -42,6 +42,7 @@ var platFormName = 'wechat';
  * 获取各个平台的请求函数
  */
 function getRequest() {
+    console.log('call getRequest');
     switch (true) {
         case typeof wx === 'object':
             platFormName = 'wechat';
@@ -49,6 +50,10 @@ function getRequest() {
         case typeof swan === 'object':
             platFormName = 'baidu';
             return swan.request.bind(swan);
+        case typeof tt === 'object':
+            console.log('getRequest(): tt');
+            platFormName = 'toutiao';
+            return tt.request.bind(tt);
         case typeof my === 'object':
             /**
              * remark:

@@ -10,5 +10,7 @@
   }
 
   declare let swan:  any
-  
+
   declare let my:  any
+
+  declare  let tt: any
